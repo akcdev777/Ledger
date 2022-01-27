@@ -1,0 +1,238 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ledger;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+import datahandler.DataHandler;
+
+import java.util.Scanner;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+/**
+ *
+ * @author 564951
+ */
+public class ViewTrade implements ActionListener{
+    
+	//Instances
+    public JFrame mainFrame,viewFrame;
+    public JButton btnRead,btnBack,btnExit;
+    public JLabel headerLabel,statusLabel;
+    public JPanel controlPanel;
+    public String introText;
+    private final String FILEPATH="D://Ledger//data.txt";
+    private JTable table1;
+    private JTextArea textArea;
+	//Constructor
+    public ViewTrade(JFrame vFrame, JFrame mainFrame) {
+            viewFrame=vFrame;
+            this.mainFrame=mainFrame;
+            createPanel();
+
+    }//end constructor
+
+    //Generate ViewTrade panel
+    private void createPanel() {
+
+
+        JPanel firstPanel=new JPanel();
+
+        viewFrame.setLayout(new GridLayout(3,1));
+           /* viewFrame.addWindowListener(new WindowAdapter(){
+                public void windowClosing(WindowEvent windowEvenet){
+                    System.exit(0);
+                }
+            });*/
+
+       headerLabel=new JLabel("",JLabel.CENTER);
+       statusLabel=new JLabel("",JLabel.CENTER);
+       statusLabel.setSize(350,100);
+
+
+
+
+       controlPanel=new JPanel();
+       controlPanel.setLayout(new FlowLayout());	
+       viewFrame.add(headerLabel);
+       viewFrame.add(controlPanel);
+       viewFrame.add(statusLabel);
+
+
+        btnBack = new JButton("Back");
+        btnBack.addActionListener(this);
+
+        btnExit=new JButton("Exit");
+        btnExit.addActionListener(this);
+
+
+
+        controlPanel.add(btnBack);
+        controlPanel.add(btnExit);
+
+        //Data set to load in table1
+        //Names of columns
+        String[] cNames= {"Ticker","Name","Price","Amount","Date"};
+
+        File file=new File(FILEPATH);
+
+           try {
+                   BufferedReader br=new BufferedReader(new FileReader(file));
+                   DefaultTableModel model=(DefaultTableModel)table1.getModel();
+                   model.setColumnIdentifiers(cNames);
+                   Object[] data= br.lines().toArray();
+                   
+                   //populate data table
+                   for(int i=0;i<data.length;i++) {
+                           String line=data[i].toString().trim();
+                           String[] dataRow=line.split(",");
+                           model.addRow(dataRow);
+                   }//end for loop
+
+           }//end try
+           catch (Exception ex) {
+                  System.out.println(ex);
+           }//end catch
+		
+		
+		
+	/*	
+		//Initialize JTable
+		table1=new JTable(data,cNames);
+		//Set table size
+		table1.setBounds(30,40,400,500);
+		
+		//Add scroll pane
+		JScrollPane scroll=new JScrollPane(table1);
+		viewFrame.add(scroll); */
+		
+		
+        viewFrame.setResizable(false);
+        //viewFrame.add(firstPanel);
+        viewFrame.add(controlPanel);
+        //viewFrame.add(panel,"Center");
+        viewFrame.setSize(500,300);
+        viewFrame.setLocationRelativeTo(null);
+        viewFrame.setVisible(false);
+		
+		
+	}//end createPanel
+	
+	
+	private void displayContent(ArrayList<String> content) {
+		
+		textArea.setText(null);
+		for(String element : content) {
+			textArea.append(element+"\n");
+		}
+	}
+	
+	
+
+	
+	
+	
+	
+	/*private void tableDemo() {
+		
+		JTable ledgerTable=new JTable();
+		
+		String[] colName= {"Ticker","Name","Price","Amount","Date"};
+		
+		ledgerTable.getTableHeader().setBackground(Color.WHITE);
+		ledgerTable.getTableHeader().setForeground(Color.BLUE);
+		
+	}*/
+	
+	
+	
+	/*private void readData() throws FileNotFoundException {
+		ArrayList<String> arrayList=new ArrayList<>();
+		BufferedReader br=new BufferedReader(new FileReader(fileName));
+		
+		try {
+			while(br.ready()) {
+				arrayList.add(br.readLine());
+			}
+			
+		}
+		catch(IOException ioe) {
+			System.out.println(ioe);
+		}
+		
+		
+		/*try(Scanner in=new Scanner(new File(fileName)).useDelimiter("\\s*-\\s*")){
+			
+			while(in.hasNext()) {
+				arrayList.add(in.next());
+			}
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
+		
+		
+		
+		
+	
+	
+	
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		if(e.getSource()==btnBack) {
+			//textArea.setText(introText);
+			viewFrame.setVisible(false);
+			mainFrame.setVisible(true);
+                        java.awt.EventQueue.invokeLater(new Runnable() {
+                        public void run() {
+                        new DataTable().setVisible(false);
+            }
+        });
+		}
+		else if(e.getSource()==btnRead)
+		{
+			ArrayList<String> content=new ArrayList<>();
+			DataHandler.loadDataFromFile(FILEPATH,content);
+			displayContent(content);
+			System.out.println("You pressed read button");
+			
+		}
+		else if(e.getSource()==btnExit){
+                    viewFrame.setVisible(false);
+                    //System.exit(0);
+                }
+		
+	}//end action listener
+	
+}//end class
